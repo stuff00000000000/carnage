@@ -78,9 +78,15 @@ local function GetNavCommand (data)
 	printf('\arHeading to: \ag%s\ax', where)
 	if data == 'theater' then
 		mq.cmd('/relocate blood')
+	elseif data == 'LDONsro' or data == 'LDONeverfrost' or data == 'LDONbb' then
+		print('\arYou will need a group of three people to get the adventure at the LDON camp.\ax')
+		if data == 'LDONsro' then mq.cmd('/travelto southro') goto endzone end
+		if data == 'LDONeverfrost' then mq.cmd('/travelto everfrost') goto endzone end
+		if data == 'LDONbb' then mq.cmd('/travelto butcher') goto endzone end
 	else
 		mq.cmdf('/travelto %s',data)
 	end
+	::endzone::
 	--warning for people to not play AFK
 	printf('%sYou are now running dumb towards %s. Please make sure that you are aware that you could die or get stuck on geometry.\ax',VividOrange, where)
 end
