@@ -6,12 +6,8 @@ Run: /lua run carnage
 
 
 
-
-
-
-
-
-
+Version 1.1
+--Fix a nil when selecting an LDON zone. Rearranged the logic to reduce complexity.
 
 Version 1.0
 --Initial Release
@@ -23,6 +19,6 @@ Version 1.0
 ------Have not tested The Rathe if repeatedly killing them without completing the event will increase the counter.
 --Race text filter can be used to reduce the displayed list to the one(s) wanted.
 --Creatures left is the total kills needed to get MegaDeath.
---Races Left is based on the needed/text filter. It's how many rowes are displayed.
+--Races Left is based on the needed/text filter. It's how many rows would be displayed if filtered for Need.
 --All data is pulled from the supplied file and referenced against the running toons achievement. There is nothing saved in except what imGui saves.
 --Zone buttons use MQ2NAV, MQ2RELOCATE, and MQ2EASYFIND to navigate the toon to the zone. Use at your own risk. You can get stuck on geometry, mesh elevation changes and zone lines. Not to mentioned killed by mobs.
