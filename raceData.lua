@@ -1067,7 +1067,7 @@ return
 		Skill		= 11000174,
 		Special		= 11000038,
 		Conquest	= 11000005,
-		zone1		= 'oldfieldofboneb',
+		zone1		= 'ethernere',
 		zone2		= nil,
 		zone3		= nil
 	},
