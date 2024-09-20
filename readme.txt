@@ -6,6 +6,8 @@ Run: /lua run carnage
 
 Version 1.2
 --Fixed wrong zone for ursarachid
+--added second zone for scarecrow
+--removed debug print
 
 Version 1.1
 --Fix a nil when selecting an LDON zone. Rearranged the logic to reduce complexity.

@@ -245,7 +245,6 @@ end
 local function DeathCheckUpdate()
 	--triggered on death event, checks if time has passed so it doesn't update on hundreds of kills at once
 	local HasTimePassed = os.clock() - LastKill
-	printf('\arTimepassed: \ay%s\ax', HasTimePassed)
 	if 10 < HasTimePassed then
 		filterKills(race_data)
 		LastKill = os.clock()

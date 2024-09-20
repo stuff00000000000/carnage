@@ -870,7 +870,7 @@ return
 		Special		= 'Not Used',
 		Conquest	= 11000016,
 		zone1		= 'dragonscale',
-		zone2		= nil,
+		zone2		= 'ethernere',
 		zone3		= nil
 	},
 	[98]				= {
