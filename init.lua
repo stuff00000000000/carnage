@@ -27,7 +27,7 @@ local filteredKillList		= {}
 local LastKill				= os.clock()
 local plugins 				= {"MQ2Nav", "MQ2EasyFind", "MQ2Relocate"}
 local filter				= ''
---Version					= '1.1'
+--Version					= '1.2'
 
 ----------------------------------------------------------------------
 ---Thank you aquietone, brainiac, dannuic, Derple, kaen01, grimmier

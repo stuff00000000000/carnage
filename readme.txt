@@ -4,7 +4,8 @@ Carnage: Gotta Kill Them All
 
 Run: /lua run carnage
 
-
+Version 1.2
+--Fixed wrong zone for ursarachid
 
 Version 1.1
 --Fix a nil when selecting an LDON zone. Rearranged the logic to reduce complexity.
