@@ -123,7 +123,7 @@ return
 		Special		= 11000043,
 		Conquest	= 11000010,
 		zone1		= 'potactics',
-		zone2		= nil,
+		zone2		= 'powar',
 		zone3		= nil
 	},
 	[15]				= {
@@ -1167,7 +1167,7 @@ return
 		Special		= 11000030,
 		Conquest	= 11000004,
 		zone1		= 'gfaydark',
-		zone2		= nil,
+		zone2		= 'oot',
 		zone3		= nil
 	},
 	[131]				= {

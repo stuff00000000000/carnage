@@ -1,5 +1,5 @@
 local mq					= require('mq')
-local imgui					= require 'ImGui'
+local ImGui					= require 'ImGui'
 local race_data				= require('raceData')
 local TLO					= mq.TLO
 local Me					= TLO.Me
@@ -9,6 +9,7 @@ local SlayerKeys			= {Skill=1,Conquest=1,Special=1}
 local running 				= true
 local window_flags 			= bit32.bor(ImGuiWindowFlags.None)
 local treeview_table_flags	= bit32.bor(ImGuiTableFlags.Reorderable, ImGuiTableFlags.Hideable, ImGuiTableFlags.RowBg, ImGuiTableFlags.Borders, ImGuiTableFlags.Resizable, ImGuiTableFlags.ScrollY)
+local tab_bar_flags			= bit32.bor(ImGuiTabBarFlags.None)
 local openGUI, drawGUI		= true, true
 local guiheader 			= 'Carnage: Gotta Kill Them All'
 local CB_Needed				= false
@@ -27,6 +28,10 @@ local filteredKillList		= {}
 local LastKill				= os.clock()
 local plugins 				= {"MQ2Nav", "MQ2EasyFind", "MQ2Relocate"}
 local filter				= ''
+local TEXT_BASE_WIDTH, _ 	= ImGui.CalcTextSize("A")
+local treeview_table_flags2 = bit32.bor(ImGuiTableFlags.BordersV, ImGuiTableFlags.BordersOuterH, ImGuiTableFlags.Resizable, ImGuiTableFlags.RowBg, ImGuiTableFlags.NoBordersInBody)
+MyTreeNode = {}
+local tabclick				= nil
 --Version					= '1.2'
 
 ----------------------------------------------------------------------
@@ -55,6 +60,22 @@ local function GetKillCounts(data)
         end
     end
     return Counter
+end
+
+local function HoverToolTipClue(data)
+	--tooltip to hover objective
+	if data == 'Completed' then
+		return
+	elseif IsCompleted(data) then
+		return 'Completed'
+	elseif data == 'Not Used' then
+		return
+	else
+		if ImGui.IsItemHovered() then
+			ImGui.SetTooltip(ach(data).ObjectiveByIndex(1).Description())
+		end
+		return
+	end
 end
 
 local function GetDisplayText(data)
@@ -145,12 +166,21 @@ local function filterKills(data)
         local sk_count = GetKillCounts(race.Skill)
         local sp_count = GetKillCounts(race.Special)
         local co_count = GetKillCounts(race.Conquest)
+		if (0 < sk_count or 0 < sp_count or 0 < co_count) then else RacesKilled = RacesKilled + 1 end
         if (0 < sk_count or 0 < sp_count or 0 < co_count) and string.find(race.Race:lower(), filter) then
             table.insert(filteredKillList, race)
-		else
-			RacesKilled = RacesKilled + 1
         end
     end
+end
+
+local function GetGlobalKills()
+	local ach_counts = {11000004,11000005,11000006,11000007,11000008,11000009,11000010,11000011,11000012,11000013,11000014,11000015,11000016,11000017,11000018,11000019,
+	11000020,11000021,11000022,11000023,11000024,11000025,11000026,11000027,11000030,11000031,11000034,11000035,11000036,11000037,11000041,11000042,11000050,11000051,
+	11000059,11000104,11000109,11000111,11000127,11000163,11000166,11000175,11000176}
+	for i=1, #ach_counts do
+		local Kill_Counter = ach(ach_counts[i]).Completed() and 0 or ach(ach_counts[i]).ObjectiveByIndex(1).RequiredCount() - ach(ach_counts[i]).ObjectiveByIndex(1).Count()
+		SlayerCount = SlayerCount + Kill_Counter
+	end
 end
 
 local function load_data(data)
@@ -162,15 +192,11 @@ local function load_data(data)
 		RaceCount = RaceCount + 1
 		for key, value in pairs(v) do
 			if SlayerKeys[key] then
-				if ach(value).Completed() then
-					race_data[k][key] = 'Completed'
-				elseif value ~= 'Not Used' and value ~= nil then
-					local Kill_Counter = ach(value).Completed() and 0 or ach(value).ObjectiveByIndex(1).RequiredCount() - ach(value).ObjectiveByIndex(1).Count()
-					SlayerCount = SlayerCount + Kill_Counter
-				end
+				if ach(value).Completed() then race_data[k][key] = 'Completed' end
 			end
 		end
 	end
+	GetGlobalKills()
 	printf('\arRaces marked for death: \ay%s\ax', RaceCount)
 	printf('\arCreatures left to Kill: \ay%s\ax', SlayerCount)
 	filterKills(data)
@@ -186,21 +212,8 @@ local function BuildTopPanel()
 	if ImGui.IsItemHovered() then ImGui.SetTooltip('Will filter against the Races you have to complete.') end
 	if changed then filterKills(race_data) end
 	ImGui.SameLine()
-	ImGui.Text('  Creatures Left: ')
-	ImGui.SameLine()
-	local currentKill = SlayerCount - SlayerKilled
-	ImGui.Text('%s  ', currentKill)
-	ImGui.SameLine()
-	ImGui.Text('  Races Left: ')
-	ImGui.SameLine()
-	local RacesLeft = RaceCount	 - RacesKilled
-	ImGui.Text('%s  ', RacesLeft)
-	ImGui.SameLine()
-	CB_Needed = imgui.Checkbox('Needed  ', CB_Needed)
+	CB_Needed = ImGui.Checkbox('Needed  ', CB_Needed)
 	if ImGui.IsItemHovered() then ImGui.SetTooltip('Will show only Races yet to be completed.') end
-	ImGui.SameLine()
-	--Im blind as a bat using a 4K monitor with EQ in 4K, but all the pretty colors
-	CB_Size = imgui.Checkbox('Text Size  ', CB_Size)
 end
 
 local function DrawRaceTable()
@@ -226,11 +239,26 @@ local function DrawRaceTable()
 					ImGui.TableNextColumn()
 					ImGui.Text(item.Race)
 					ImGui.TableNextColumn()
-					ImGui.Text(GetDisplayText(item.Skill))
+					if GetDisplayText(item.Skill) == 'Completed' then
+						ImGui.TextColored(ImVec4(1.0, 1.0, 0.0, 1.0), "Completed")
+					else
+						ImGui.Text(GetDisplayText(item.Skill))
+					end
+					HoverToolTipClue(item.Skill)
 					ImGui.TableNextColumn()
+					if GetDisplayText(item.Special) == 'Completed' then
+						ImGui.TextColored(ImVec4(1.0, 1.0, 0.0, 1.0), "Completed")
+					else
 					ImGui.Text(GetDisplayText(item.Special))
+					end
+					HoverToolTipClue(item.Special)
 					ImGui.TableNextColumn()
+					if GetDisplayText(item.Conquest) == 'Completed' then
+						ImGui.TextColored(ImVec4(1.0, 1.0, 0.0, 1.0), "Completed")
+					else
 					ImGui.Text(GetDisplayText(item.Conquest))
+					end
+					HoverToolTipClue(item.Conquest)
 					ImGui.TableNextColumn()
 					DrawButtons(item.zone1,item.zone2,item.zone3)
 					ImGui.TableNextColumn()
@@ -251,6 +279,122 @@ local function DeathCheckUpdate()
 	end
 end
 
+function MyTreeNode.new(name, KillCount, childIdx, childCount)
+    MyTreeNode.__index = MyTreeNode
+    local o = {}
+    setmetatable(o, MyTreeNode)
+    o.Name = name
+    o.KillCount = KillCount
+    o.ChildIdx = childIdx
+    o.ChildCount = childCount
+    return o
+end
+
+function MyTreeNode:display(all_nodes)
+    ImGui.TableNextRow()
+    ImGui.TableNextColumn()
+    local is_folder = self.ChildCount > 0
+    if is_folder then
+        local open = ImGui.TreeNodeEx(self.Name, ImGuiTreeNodeFlags.SpanFullWidth)
+        ImGui.TableNextColumn()
+        ImGui.Text(self.KillCount)
+        if open then
+            for child_n = 1, self.ChildCount do
+                all_nodes[self.ChildIdx + child_n]:display(all_nodes)
+            end
+            ImGui.TreePop()
+        end
+    else
+        ImGui.TreeNodeEx(self.Name, bit32.bor(ImGuiTreeNodeFlags.Leaf, ImGuiTreeNodeFlags.NoTreePushOnOpen, ImGuiTreeNodeFlags.SpanFullWidth))
+        ImGui.TableNextColumn()
+        ImGui.Text(self.KillCount)
+    end
+end
+
+local function GetAchievementName(data)
+	return ach(data).Name()
+end
+
+local function IsCompleteOrMetaCount(data)
+	if IsCompleted(data) then return 'Completed'
+	elseif data == 11000000 then return ''
+	else
+		local TotalKills = 0
+		if data == 11000001 then
+			for i=11000004, 11000027 do TotalKills = TotalKills + GetKillCounts(i) end
+		elseif data == 11000002 then
+			for i=11000028, 11000064 do TotalKills = TotalKills + GetKillCounts(i) end
+		elseif data == 11000003 then
+			for i=11000065, 11000178 do TotalKills = TotalKills + GetKillCounts(i) end
+		else
+			TotalKills = GetKillCounts(data)
+		end
+		return TotalKills
+	end
+end
+
+local treeview_nodes = {
+    MyTreeNode.new(GetAchievementName(11000000), IsCompleteOrMetaCount(11000000),  1,  3),
+    MyTreeNode.new(GetAchievementName(11000001), IsCompleteOrMetaCount(11000001),  4,  24),
+	MyTreeNode.new(GetAchievementName(11000002), IsCompleteOrMetaCount(11000002), 28,  37),
+	MyTreeNode.new(GetAchievementName(11000003), IsCompleteOrMetaCount(11000003), 65, 114)
+}
+local childcount = 1
+for i=11000004, 11000027 do
+	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+	childcount = childcount + 1
+end
+childcount = childcount + 1
+for i=11000028, 11000064 do
+	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+	childcount = childcount + 1
+end
+childcount = childcount + 1
+for i=11000065, 11000178 do
+	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+	childcount = childcount + 1
+end
+
+local function ShowTableDemoTreeView()
+	ImGui.PushStyleVar(ImGuiStyleVar.IndentSpacing, 0.0)
+    if ImGui.TreeNode('Slayer') then
+        if ImGui.BeginTable('##3ways', 2, treeview_table_flags2) then
+            -- The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
+            ImGui.TableSetupColumn('Name', ImGuiTableColumnFlags.NoHide)
+            ImGui.TableSetupColumn('KillCount', ImGuiTableColumnFlags.WidthFixed, TEXT_BASE_WIDTH * 13.0)
+            treeview_nodes[1]:display(treeview_nodes)
+            ImGui.EndTable()
+        end
+        ImGui.TreePop()
+    end
+end
+
+local function DrawAchievementTable()
+	ShowTableDemoTreeView()
+end
+
+local function DrawOptions()
+	--Im blind as a bat using a 4K monitor with EQ in 4K, but all the pretty colors
+	CB_Size = ImGui.Checkbox('Text Size', CB_Size)
+	ImGui.Text('Increase text size by 50% for the sight impared.')
+end
+
+local function DrawMainGui()
+	ImGui.Text('BLAH BLAH BLAH')
+end
+
+local function DrawKillCounts()
+	ImGui.Text('  Creatures Left: ')
+	ImGui.SameLine()
+	local currentKill = SlayerCount - SlayerKilled
+	ImGui.Text('%s  ', currentKill)
+	ImGui.SameLine()
+	ImGui.Text('  Races Left: ')
+	ImGui.SameLine()
+	local RacesLeft = RaceCount	 - RacesKilled
+	ImGui.Text('%s  ', RacesLeft)
+end
+
 local function DisplayGUI()
 	--draws something on the screen
 	if not openGUI then running = false end
@@ -259,8 +403,35 @@ local function DisplayGUI()
 	openGUI, drawGUI = ImGui.Begin(guiheader, openGUI, window_flags)
 	if CB_Size then ImGui.SetWindowFontScale(1.5) else ImGui.SetWindowFontScale(1.0) end
 	if drawGUI and not Me.Zoning() then
-		BuildTopPanel()
-		DrawRaceTable()
+		if ImGui.BeginTabBar('CarnageTabs', tab_bar_flags) then
+			if ImGui.BeginTabItem('Carnage Main') then
+				tabclick = 'Carnage Main'
+				DrawMainGui()
+				ImGui.EndTabItem()
+			end
+			if ImGui.BeginTabItem('Races To Kill') then
+				tabclick = 'Races To Kill'
+				BuildTopPanel()
+				DrawRaceTable()
+				ImGui.EndTabItem()
+			end
+			if ImGui.BeginTabItem('Achievements') then
+				tabclick = 'Achievements'
+				DrawAchievementTable()
+				ImGui.EndTabItem()
+			end
+			if ImGui.BeginTabItem('Options') then
+				tabclick = 'Options'
+				ImGui.EndTabItem()
+			end
+			ImGui.SameLine()
+			ImGui.EndTabBar()
+		end
+		ImGui.SameLine()
+		DrawKillCounts()
+		if tabclick == 'Options' then
+			DrawOptions()
+		end
 	end
 	ImGui.End()
 end

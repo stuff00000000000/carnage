@@ -6,8 +6,12 @@ Run: /lua run carnage
 
 Version 1.2
 --Fixed wrong zone for ursarachid
---added second zone for scarecrow
+--added second zone for scarecrow, wood elf
 --removed debug print
+--added hover to kill counts to give description of the achievement for races to kill
+--added yellow color for completed.
+--adding tabs
+--removed the text filter from races left count
 
 Version 1.1
 --Fix a nil when selecting an LDON zone. Rearranged the logic to reduce complexity.
