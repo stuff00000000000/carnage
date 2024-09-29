@@ -181,10 +181,10 @@ return
 		zone3		= nil
 	},
 	[21]				= {
-		Race		= 'Cazic Thule',
+		Race		= nil,
 		Skill		= 'Not Used',
 		Special		= 'Not Used',
-		Conquest	= 11000026,
+		Conquest	= 'Not Used',
 		zone1		= 'fearplane',
 		zone2		= nil,
 		zone3		= nil

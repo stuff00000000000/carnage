@@ -1,11 +1,15 @@
 local mq					= require('mq')
 local ImGui					= require 'ImGui'
 local race_data				= require('raceData')
+local class_settings 		= require("classSettings")
 local TLO					= mq.TLO
 local Me					= TLO.Me
 local ach					= TLO.Achievement
 local Zone 					= TLO.Zone
 local SlayerKeys			= {Skill=1,Conquest=1,Special=1}
+local myClassSN				= Me.Class.ShortName()
+local myClass				= Me.Class()
+local myLevel				= Me.Level()
 local running 				= true
 local window_flags 			= bit32.bor(ImGuiWindowFlags.None)
 local treeview_table_flags	= bit32.bor(ImGuiTableFlags.Reorderable, ImGuiTableFlags.Hideable, ImGuiTableFlags.RowBg, ImGuiTableFlags.Borders, ImGuiTableFlags.Resizable, ImGuiTableFlags.ScrollY)
@@ -14,10 +18,12 @@ local openGUI, drawGUI		= true, true
 local guiheader 			= 'Carnage: Gotta Kill Them All'
 local CB_Needed				= false
 local CB_Size				= false
+local CB_Invis				= false
 local column_count 			= 5
 local SlayerCount			= 0
 local SlayerKilled			= 0
-local RaceCount				= 0
+local RaceCount				= -1
+--changed one race to nil, instead of renumbering race list
 local RacesKilled			= 0
 local ColumnID_Race 		= 1
 local ColumnID_Skill 		= 2
@@ -30,9 +36,18 @@ local plugins 				= {"MQ2Nav", "MQ2EasyFind", "MQ2Relocate"}
 local filter				= ''
 local TEXT_BASE_WIDTH, _ 	= ImGui.CalcTextSize("A")
 local treeview_table_flags2 = bit32.bor(ImGuiTableFlags.BordersV, ImGuiTableFlags.BordersOuterH, ImGuiTableFlags.Resizable, ImGuiTableFlags.RowBg, ImGuiTableFlags.NoBordersInBody)
-MyTreeNode = {}
+MyTreeNode 					= {}
 local tabclick				= nil
---Version					= '1.2'
+local Version				= '1.2'
+local FLT_MIN, FLT_MAX 		= mq.NumericLimits_Float()
+local treeview_nodes 		= {}
+local navigatetoZone		= false
+local CloudyPotion			= TLO.FindItemCount('Cloudy Potion')
+local invis_type 			= {}
+local changed 				= false
+local testing_invis 		= false
+local toZone 				= ''
+local PotionNeed 			= false
 
 ----------------------------------------------------------------------
 ---Thank you aquietone, brainiac, dannuic, Derple, kaen01, grimmier
@@ -43,6 +58,60 @@ local tabclick				= nil
 ---SlayerKeys was voted on, by aquietone, as the best alternative to
 ---                                                   someSetOfKeys
 ----------------------------------------------------------------------
+
+
+local function navPause()
+	mq.cmd("/nav pause")
+	mq.delay(500)
+end
+
+local function buildInvisType()
+	invis_type = {}
+	for word in string.gmatch(class_settings.settings.class_invis[myClass], "([^|]+)") do
+		table.insert(invis_type, word)
+	end
+end
+local function invis(class_settings)
+	if Me.Combat() == true then
+		mq.cmd("/attack off")
+	end
+	buildInvisType()
+	if Me.Invis() == false then
+		print(invis_type[class_settings.settings.invis[myClass]])
+		if invis_type[class_settings.settings.invis[myClass]] == "Potion" and CloudyPotion() > 0 then
+			mq.cmd('/useitem "Cloudy Potion"')
+		elseif invis_type[class_settings.settings.invis[myClass]] == "Circlet of Shadows" then
+			mq.cmd('/useitem "Circlet of Shadows"')
+		elseif invis_type[class_settings.settings.invis[myClass]] == "Hide/Sneak" then
+			while Me.Invis() == false do
+				mq.delay(100)
+				if Me.AbilityReady("Hide")() == true then
+					mq.cmd("/doability hide")
+				end
+			end
+			if Me.Sneaking() == false then
+				while Me.Sneaking() == false do
+					mq.delay(100)
+					if Me.AbilityReady("Sneak")() == true then
+						mq.cmd("/doability sneak")
+					end
+				end
+			end
+		else
+			local ID = class_settings.settings.skill_to_num[invis_type[class_settings.settings.invis[myClass]]]
+			while Me.AltAbilityReady(ID)() == false do
+				mq.delay(50)
+			end
+			mq.cmdf("/alt act %s", ID)
+			mq.delay(500)
+			while Me.Casting() and myClass ~= "Bard" do
+				mq.delay(200)
+			end
+		end
+	end
+	mq.delay("1s")
+	testing_invis = false
+end
 
 local function IsCompleted(data)
 	--Checks if passed data is completed or needs to be checked against the achievement TLO
@@ -95,7 +164,7 @@ end
 local function LDONwarningText()
 	print('\ag----------------------------------------------------------------------------\ax')
 	print('\arYou will need a group of three people to get the adventure at the LDON camp.\ax')
-	print('\arYou will need to travel to the camp if you did arrive by Magus.\ax')
+	print('\arYou will need to travel to the camp if you didnt arrive by Magus.\ax')
 	print('\ag----------------------------------------------------------------------------\ax')
 end
 
@@ -103,6 +172,7 @@ local function GetNavCommand (data)
 	--converts the data from the Zone keys (zone1, zone2, zone3) to trigger on button push using Relocate or Nav/EasyFind
 	--Currently travels from the zone where the button is pushed
 	local VividOrange = '\a#f8bd21'
+	toZone = data
 	if data == 'theater' then
 		mq.cmd('/relocate blood')
 	else
@@ -126,6 +196,7 @@ local function GetNavCommand (data)
 		--warning for people to not play AFK
 		printf('%sYou are now running dumb towards %s. Please make sure that you are aware that you could die or get stuck on geometry.\ax',VividOrange, where)
 	end
+	navigatetoZone = true
 end
 
 local function HoverButtonZone(data)
@@ -333,26 +404,27 @@ local function IsCompleteOrMetaCount(data)
 	end
 end
 
-local treeview_nodes = {
-    MyTreeNode.new(GetAchievementName(11000000), IsCompleteOrMetaCount(11000000),  1,  3),
-    MyTreeNode.new(GetAchievementName(11000001), IsCompleteOrMetaCount(11000001),  4,  24),
-	MyTreeNode.new(GetAchievementName(11000002), IsCompleteOrMetaCount(11000002), 28,  37),
-	MyTreeNode.new(GetAchievementName(11000003), IsCompleteOrMetaCount(11000003), 65, 114)
-}
-local childcount = 1
-for i=11000004, 11000027 do
-	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+local function buildAchView()
+	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(11000000), IsCompleteOrMetaCount(11000000),  1,  3))
+	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(11000001), IsCompleteOrMetaCount(11000001),  4,  24))
+	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(11000002), IsCompleteOrMetaCount(11000002), 28,  37))
+	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(11000003), IsCompleteOrMetaCount(11000003), 65, 114))
+
+	local childcount = 1
+	for i=11000004, 11000027 do
+		table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+		childcount = childcount + 1
+	end
 	childcount = childcount + 1
-end
-childcount = childcount + 1
-for i=11000028, 11000064 do
-	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+	for i=11000028, 11000064 do
+		table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+		childcount = childcount + 1
+	end
 	childcount = childcount + 1
-end
-childcount = childcount + 1
-for i=11000065, 11000178 do
-	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
-	childcount = childcount + 1
+	for i=11000065, 11000178 do
+		table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+		childcount = childcount + 1
+	end
 end
 
 local function ShowTableDemoTreeView()
@@ -373,14 +445,70 @@ local function DrawAchievementTable()
 	ShowTableDemoTreeView()
 end
 
+local function DrawInvisCombo()
+	invis_type = {}
+	for word in
+	string.gmatch(class_settings.settings.class_invis[myClass], "([^|]+)")
+	do
+		table.insert(invis_type, word)
+	end
+	ImGui.PushItemWidth(230)
+	class_settings.settings.invis[myClass], changed = ImGui.Combo(
+		"##InvisType",
+		class_settings.settings.invis[myClass],
+		invis_type,
+		#invis_type,
+		#invis_type
+	)
+	if changed then
+		changed = false
+		class_settings.saveSettings()
+	end
+end
+
 local function DrawOptions()
 	--Im blind as a bat using a 4K monitor with EQ in 4K, but all the pretty colors
 	CB_Size = ImGui.Checkbox('Text Size', CB_Size)
 	ImGui.Text('Increase text size by 50% for the sight impared.')
+	CB_Invis = ImGui.Checkbox('Travel Invis', CB_Invis)
+	if PotionNeed then 
+		ImGui.SameLine()
+		ImGui.Text('Need Potions')
+	end
+	ImGui.Text('When navigating to a zone, be invisible if possible.')
+	ImGui.Text('')
+	ImGui.Text('Invis Type: ')
+	ImGui.SameLine()
+	DrawInvisCombo()
+end
+
+local function CheckNavigateInvis()
+	if Me.Invis() == false then
+		navPause()
+		invis(class_settings)
+		navPause()
+	end
 end
 
 local function DrawMainGui()
-	ImGui.Text('BLAH BLAH BLAH')
+	ImGui.Text('Carnage')
+	ImGui.Text('Version: %s', Version)
+	ImGui.Text('Current Class: %s', myClass)
+	ImGui.SameLine()
+	ImGui.Text('Level: %s', myLevel)
+	ImGui.Text('Cloudy Potions: %s', CloudyPotion())
+	buildInvisType()
+	ImGui.Text('Innate Invis: %s', invis_type[class_settings.settings.invis[myClass]])
+--	if (ImGui.Button("Invis")) then
+--		testing_invis = true
+--	end
+ImGui.Spacing()
+ImGui.TextWrapped('Carnage will help your character achieve Megadeath.')
+ImGui.Spacing()
+ImGui.TextWrapped('It gives the minumum races needed to kill to achieve this, as well as, the zones that those races can appear in. It can let you travel to those zones with a click.')
+ImGui.Spacing()
+ImGui.TextWrapped('The Creatures Left and Races Left are how many are need to achieve. You may happen to kill more before you get the achievement as some of the races overlap the different achievements. Killing races that are not listed may decrease counts. You can hover over the count to get the true criteria.')
+
 end
 
 local function DrawKillCounts()
@@ -400,6 +528,11 @@ local function DisplayGUI()
 	if not openGUI then running = false end
 	ImGui.SetNextWindowPos(400, 400, ImGuiCond.Once)
     ImGui.SetNextWindowSize(800, 650, ImGuiCond.Once)
+	if CB_Size then
+		ImGui.SetNextWindowSizeConstraints(ImVec2(950, 250), ImVec2(FLT_MAX, FLT_MAX))
+	else
+		ImGui.SetNextWindowSizeConstraints(ImVec2(650, 250), ImVec2(FLT_MAX, FLT_MAX))
+	end
 	openGUI, drawGUI = ImGui.Begin(guiheader, openGUI, window_flags)
 	if CB_Size then ImGui.SetWindowFontScale(1.5) else ImGui.SetWindowFontScale(1.0) end
 	if drawGUI and not Me.Zoning() then
@@ -436,7 +569,18 @@ local function DisplayGUI()
 	ImGui.End()
 end
 
+local function checkPotionuse()
+	buildInvisType()
+	if CloudyPotion() == 0 and invis_type[class_settings.settings.invis[myClass]] == "Potion" then
+		CB_Invis = false
+		PotionNeed = true
+	else
+		PotionNeed = false
+	end
+end
+
 local function initializeDeath()
+	buildAchView()
 	--Define trigger events to update filterdata
 	mq.event('SomeoneKills','#*#has been slain by#*#',DeathCheckUpdate)
 	mq.event('YouKill','#*#You have slain#*#',DeathCheckUpdate)
@@ -449,6 +593,7 @@ local function initializeDeath()
 			mq.cmdf('/plugin %s noauto', plugin)
 		end
 	end
+	class_settings.loadSettings()
 end
 
 load_data(race_data)
@@ -456,7 +601,13 @@ initializeDeath()
 mq.imgui.init('drawGUI', DisplayGUI)
 
 while running == true do
+	CloudyPotion			= TLO.FindItemCount('Cloudy Potion')
+	checkPotionuse()
 	--Check for events
+	if navigatetoZone and CB_Invis then CheckNavigateInvis() end
+	if testing_invis then invis(class_settings) end
+	if toZone == Zone.ShortName() and navigatetoZone then navigatetoZone = false end
+	if TLO.Navigation.Active() then else navigatetoZone = false end
 	mq.doevents()
 	mq.delay('1s')
 end

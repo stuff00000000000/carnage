@@ -12,6 +12,7 @@ Version 1.2
 --added yellow color for completed.
 --adding tabs
 --removed the text filter from races left count
+--Cazic Thule removed, killing will still count
 
 Version 1.1
 --Fix a nil when selecting an LDON zone. Rearranged the logic to reduce complexity.
