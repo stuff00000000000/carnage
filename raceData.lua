@@ -129,8 +129,8 @@ return
 	[15]				= {
 		Race		= 'Book Dervish',
 		Skill		= 11000175,
-		Special		= 'Not Used',
-		Conquest	= 'Not Used',
+		Special		= 11000162,
+		Conquest	= 11000021,
 		zone1		= 'fallen',
 		zone2		= nil,
 		zone3		= nil
@@ -826,7 +826,7 @@ return
 		Conquest	= 11000007,
 		zone1		= 'moors',
 		zone2		= 'crescent',
-		zone3		= nil
+		zone3		= 'barren'
 	},
 	[93]				= {
 		Race		= 'Ratman',

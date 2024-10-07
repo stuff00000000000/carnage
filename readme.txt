@@ -1,8 +1,22 @@
+----------------------------------------------------------------------
+---Thank you aquietone, brainiac, dannuic, Derple, kaen01, grimmier
+---for putting up with me and helping me wrap my head around my logic
+---
+---Comments brought to you by the song: Look at what you made me do.
+---
+---SlayerKeys was voted on, by aquietone, as the best alternative to
+---                                                   someSetOfKeys
+----------------------------------------------------------------------
+
+
 Carnage: Gotta Kill Them All
 
 2024-09-19 by Stuff
 
 Run: /lua run carnage
+
+Version 1.3
+--Code cleanup
 
 Version 1.2
 --Fixed wrong zone for ursarachid
@@ -13,6 +27,8 @@ Version 1.2
 --adding tabs
 --removed the text filter from races left count
 --Cazic Thule removed, killing will still count
+--fixed a bug with race/creature kill total count
+--adding invisibility checks
 
 Version 1.1
 --Fix a nil when selecting an LDON zone. Rearranged the logic to reduce complexity.
