@@ -959,7 +959,7 @@ return
 		Skill		= 11000122,
 		Special		= 'Not Used',
 		Conquest	= 11000006,
-		zone1		= 'Field of Scale',
+		zone1		= 'oldfieldofboneb',
 		zone2		= nil,
 		zone3		= nil
 	},

@@ -26,7 +26,7 @@ local RaceCount, RacesKilled, currentRaces		= -1, 0, 0
 --changed one race to nil, instead of renumbering race list
 
 --Text stuff
-local filter, Version							= '', '1.3'
+local filter, Version							= '', '1.4'
 
 --ArraYs
 local filteredKillList, invis_type				= {}, {}
@@ -120,6 +120,7 @@ local function GetKillCounts(data)
 end
 
 local function GetGlobalKills()
+	SlayerCount = 0
 	--Checks kills against the categories
 	local ach_counts = {11000004,11000005,11000006,11000007,11000008,11000009,11000010,11000011,11000012,11000013,11000014,11000015,11000016,11000017,11000018,11000019,
 	11000020,11000021,11000022,11000023,11000024,11000025,11000026,11000027,11000030,11000031,11000034,11000035,11000036,11000037,11000041,11000042,11000050,11000051,
@@ -197,6 +198,7 @@ local function DeathCheckUpdate()
 		filterKills(race_data)
 		LastKill = os.clock()
 	end
+	GetGlobalKills()
 end
 
 local function GetAchievementName(data)

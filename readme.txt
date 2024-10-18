@@ -15,6 +15,10 @@ Carnage: Gotta Kill Them All
 
 Run: /lua run carnage
 
+Version 1.4
+--Fix to Total creatures left. Would only update on first load. Change to update on creatures killed.
+--Fix to sokokar zone having name of zone but not the proper shortname oldfieldofboneb.
+
 Version 1.3
 --Code cleanup
 
