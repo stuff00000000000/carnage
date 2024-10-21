@@ -21,12 +21,12 @@ local ColumnID_Race, ColumnID_Skill, ColumnID_Special, ColumnID_Conquest, Column
 									  			= 1, 2, 3, 4, 5
 
 --counters
-local SlayerCount, SlayerKilled, currentKill	= 0, 0, 0
-local RaceCount, RacesKilled, currentRaces		= -1, 0, 0
+local currentKill	= 0
+local RaceCount, RacesKilled, currentRaces		= -2, 0, 0
 --changed one race to nil, instead of renumbering race list
 
 --Text stuff
-local filter, Version							= '', '1.4'
+local filter, Version							= '', '1.4b'
 
 --ArraYs
 local filteredKillList, invis_type				= {}, {}
@@ -120,8 +120,8 @@ local function GetKillCounts(data)
 end
 
 local function GetGlobalKills()
-	SlayerCount = 0
 	--Checks kills against the categories
+	local SlayerCount = 0
 	local ach_counts = {11000004,11000005,11000006,11000007,11000008,11000009,11000010,11000011,11000012,11000013,11000014,11000015,11000016,11000017,11000018,11000019,
 	11000020,11000021,11000022,11000023,11000024,11000025,11000026,11000027,11000030,11000031,11000034,11000035,11000036,11000037,11000041,11000042,11000050,11000051,
 	11000059,11000104,11000109,11000111,11000127,11000163,11000166,11000175,11000176}
@@ -129,6 +129,7 @@ local function GetGlobalKills()
 		local Kill_Counter = mq.TLO.Achievement(ach_counts[i]).Completed() and 0 or mq.TLO.Achievement(ach_counts[i]).ObjectiveByIndex(1).RequiredCount() - mq.TLO.Achievement(ach_counts[i]).ObjectiveByIndex(1).Count()
 		SlayerCount = SlayerCount + Kill_Counter
 	end
+	return SlayerCount
 end
 
 local function IsCompleteOrMetaCount(data)
@@ -198,7 +199,6 @@ local function DeathCheckUpdate()
 		filterKills(race_data)
 		LastKill = os.clock()
 	end
-	GetGlobalKills()
 end
 
 local function GetAchievementName(data)
@@ -565,7 +565,7 @@ local function CheckNavigating()
 end
 
 local function CheckCounts()
-	currentKill 			= SlayerCount	- SlayerKilled
+	currentKill 			= GetGlobalKills()
 	currentRaces 			= RaceCount 	- RacesKilled
 end
 
@@ -584,9 +584,8 @@ local function load_data(data)
 			end
 		end
 	end
-	GetGlobalKills()
 	printf('\arRaces marked for death: \ay%s\ax', RaceCount)
-	printf('\arCreatures left to Kill: \ay%s\ax', SlayerCount)
+	printf('\arCreatures left to Kill: \ay%s\ax', GetGlobalKills())
 	filterKills(data)
 end
 

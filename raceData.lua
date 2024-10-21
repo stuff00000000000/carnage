@@ -280,10 +280,10 @@ return
 		zone3		= nil
 	},
 	[32]				= {
-		Race		= 'Dragon',
+		Race		= nil,
 		Skill		= 'Not Used',
-		Special		= 11000053,
-		Conquest	= 11000018,
+		Special		= 'Not Used',
+		Conquest	= 'Not Used',
 		zone1		= 'westwastes',
 		zone2		= 'templeveeshan',
 		zone3		= 'skyshrine'
@@ -304,7 +304,7 @@ return
 		Conquest	= 11000018,
 		zone1		= 'crescent',
 		zone2		= 'sunderock',
-		zone3		= nil
+		zone3		= 'westwastes'
 	},
 	[35]				= {
 		Race		= 'Drakkin',
