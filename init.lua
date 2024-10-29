@@ -22,11 +22,11 @@ local ColumnID_Race, ColumnID_Skill, ColumnID_Special, ColumnID_Conquest, Column
 
 --counters
 local currentKill	= 0
-local RaceCount, RacesKilled, currentRaces		= -2, 0, 0
+local RaceCount, RacesKilled, currentRaces		= -1, 0, 0
 --changed one race to nil, instead of renumbering race list
 
 --Text stuff
-local filter, Version							= '', '1.4b'
+local filter, Version							= '', '1.5'
 
 --ArraYs
 local filteredKillList, invis_type				= {}, {}

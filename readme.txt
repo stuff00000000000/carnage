@@ -15,6 +15,11 @@ Carnage: Gotta Kill Them All
 
 Run: /lua run carnage
 
+
+Version 1.5
+--Added Veksar to undead conquest.
+--Fixed True Dragons
+
 Version 1.4b
 --Fixed sokokar to oldfieldofboneb.
 --Fix to Total creatures left. Would only update on first load. Change to update on creatures killed.
