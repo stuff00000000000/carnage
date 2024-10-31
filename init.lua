@@ -26,7 +26,7 @@ local RaceCount, RacesKilled, currentRaces		= -1, 0, 0
 --changed one race to nil, instead of renumbering race list
 
 --Text stuff
-local filter, Version							= '', '1.5'
+local filter, Version							= '', '1.5.2'
 
 --ArraYs
 local filteredKillList, invis_type				= {}, {}

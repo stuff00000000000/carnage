@@ -15,7 +15,8 @@ Carnage: Gotta Kill Them All
 
 Run: /lua run carnage
 
-
+Version 1.5.2
+--Added (Optional) tag to races that are optional to the achievement.
 
 Version 1.5
 --Added Veksar to undead conquest.

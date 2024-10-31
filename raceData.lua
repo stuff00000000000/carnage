@@ -136,7 +136,7 @@ return
 		zone3		= nil
 	},
 	[16]				= {
-		Race		= 'Broom Minion',
+		Race		= 'Broom Minion (Optional)',
 		Skill		= 11000176,
 		Special		= 'Not Used',
 		Conquest	= 'Not Used',
@@ -388,7 +388,7 @@ return
 		zone3		= nil
 	},
 	[44]				= {
-		Race		= 'Fire Elf',
+		Race		= 'Fire Elf (Optional)',
 		Skill		= 11000178,
 		Special		= 11000030,
 		Conquest	= 'Not Used',
@@ -1054,7 +1054,7 @@ return
 		zone3		= nil
 	},
 	[118]				= {
-		Race		= 'Tyrannosaurus',
+		Race		= 'Tyrannosaurus (Optional)',
 		Skill		= 11000177,
 		Special		= 11000053,
 		Conquest	= 11000018,
@@ -1063,7 +1063,7 @@ return
 		zone3		= nil
 	},
 	[119]				= {
-		Race		= 'Ursarachnid',
+		Race		= 'Ursarachnid (Optional)',
 		Skill		= 11000174,
 		Special		= 11000038,
 		Conquest	= 11000005,
@@ -1180,7 +1180,7 @@ return
 		zone3		= nil
 	},
 	[132]				= {
-		Race		= 'Xulous',
+		Race		= 'Xulous (Optional)',
 		Skill		= 11000173,
 		Special		= 'Not Used',
 		Conquest	= 11000022,
