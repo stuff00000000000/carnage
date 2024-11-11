@@ -3,11 +3,11 @@ local mq										= require('mq')
 local ImGui										= require 'ImGui'
 local race_data									= require('raceData')
 local class_settings 							= require("classSettings")
-
+local dir_name									= 'carnage_beta'
 --flags
 local running, changed 							= true, false
 local openGUI, drawGUI							= true, true
-local CB_Needed, CB_Size, CB_Invis				= false, false, true
+local CB_Needed, CB_Size, CB_Invis = false, false, true
 local navigatetoZone, PotionNeed 				= false, false
 
 --GUI stuff
@@ -23,10 +23,11 @@ local ColumnID_Race, ColumnID_Skill, ColumnID_Special, ColumnID_Conquest, Column
 --counters
 local currentKill	= 0
 local RaceCount, RacesKilled, currentRaces		= -1, 0, 0
+local maxZones									= 9
 --changed one race to nil, instead of renumbering race list
 
 --Text stuff
-local filter, Version							= '', '1.5.2'
+local filter, Version							= '', '1.6.0'
 
 --ArraYs
 local filteredKillList, invis_type				= {}, {}
@@ -112,7 +113,8 @@ local function GetKillCounts(data)
     local Counter = 0
     if not mq.TLO.Achievement(data).Completed() then
         local objective = mq.TLO.Achievement(data).ObjectiveByIndex(1)
-        if objective.RequiredCount() ~= nil then
+		local rc_obj = objective.RequiredCount()
+        if rc_obj then
             Counter = objective.RequiredCount() - objective.Count()
         end
     end
@@ -173,22 +175,43 @@ local function LDONwarningText()
 	print('\ag----------------------------------------------------------------------------\ax')
 end
 
+local function testkill(data)
+	local sk_count = GetKillCounts(data.Skill)
+	local sp_count = GetKillCounts(data.Special)
+	local co_count = GetKillCounts(data.Conquest)
+	if (0 < sk_count or 0 < sp_count or 0 < co_count) then
+		return true
+	else
+		return false
+	end
+end
+
 local function filterKills(data)
 	--builds a table of races that still need kills, or requested from filter
     filteredKillList = {}
 	RacesKilled = 0
 	filter = string.lower(filter)
     for _,race in ipairs(data) do
-        local sk_count = GetKillCounts(race.Skill)
-        local sp_count = GetKillCounts(race.Special)
-        local co_count = GetKillCounts(race.Conquest)
-		if (0 < sk_count or 0 < sp_count or 0 < co_count) then
-		else
+		if not testkill(race) then
 			RacesKilled = RacesKilled + 1
 		end
-        if (0 < sk_count or 0 < sp_count or 0 < co_count) and string.find(race.Race:lower(), filter) then
-            table.insert(filteredKillList, race)
-        end
+		if CB_Needed and filter ~= '' then
+			local mob_optional = race.Optional
+			if not mob_optional and testkill(race) and string.find(race.Race:lower(), filter) then
+				table.insert(filteredKillList, race)
+			end
+		elseif CB_Needed then
+			local mob_optional = race.Optional
+			if not mob_optional and testkill(race) then
+				table.insert(filteredKillList, race)
+			end
+		elseif filter ~= '' then
+			if testkill(race) and string.find(race.Race:lower(), filter) then
+				table.insert(filteredKillList, race)
+			end
+		else
+			table.insert(filteredKillList, race)
+		end
     end
 end
 
@@ -300,7 +323,7 @@ function MyTreeNode.new(name, KillCount, childIdx, childCount)
     MyTreeNode.__index = MyTreeNode
     local o = {}
     setmetatable(o, MyTreeNode)
-    o.Name = name
+    o.Name = GetAchievementName(name)
     o.KillCount = KillCount
     o.ChildIdx = childIdx
     o.ChildCount = childCount
@@ -323,30 +346,33 @@ function MyTreeNode:display(all_nodes)
         end
     else
         ImGui.TreeNodeEx(self.Name, bit32.bor(ImGuiTreeNodeFlags.Leaf, ImGuiTreeNodeFlags.NoTreePushOnOpen, ImGuiTreeNodeFlags.SpanFullWidth))
+		if ImGui.IsItemHovered() then
+			ImGui.SetTooltip(mq.TLO.Achievement(self.Name).ObjectiveByIndex(1).Description())
+		end
         ImGui.TableNextColumn()
         ImGui.Text(self.KillCount)
     end
 end
 
 local function buildAchView()
-	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(11000000), IsCompleteOrMetaCount(11000000),  1,   3))
-	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(11000001), IsCompleteOrMetaCount(11000001),  4,  24))
-	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(11000002), IsCompleteOrMetaCount(11000002), 28,  37))
-	table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(11000003), IsCompleteOrMetaCount(11000003), 65, 114))
+	table.insert(treeview_nodes, MyTreeNode.new(11000000, IsCompleteOrMetaCount(11000000),  1,   3))
+	table.insert(treeview_nodes, MyTreeNode.new(11000001, IsCompleteOrMetaCount(11000001),  4,  24))
+	table.insert(treeview_nodes, MyTreeNode.new(11000002, IsCompleteOrMetaCount(11000002), 28,  37))
+	table.insert(treeview_nodes, MyTreeNode.new(11000003, IsCompleteOrMetaCount(11000003), 65, 114))
 
 	local childcount = 1
 	for i=11000004, 11000027 do
-		table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+		table.insert(treeview_nodes, MyTreeNode.new(i, IsCompleteOrMetaCount(i), childcount, -1))
 		childcount = childcount + 1
 	end
 	childcount = childcount + 1
 	for i=11000028, 11000064 do
-		table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+		table.insert(treeview_nodes, MyTreeNode.new(i, IsCompleteOrMetaCount(i), childcount, -1))
 		childcount = childcount + 1
 	end
 	childcount = childcount + 1
 	for i=11000065, 11000178 do
-		table.insert(treeview_nodes, MyTreeNode.new(GetAchievementName(i), IsCompleteOrMetaCount(i), childcount, -1))
+		table.insert(treeview_nodes, MyTreeNode.new(i, IsCompleteOrMetaCount(i), childcount, -1))
 		childcount = childcount + 1
 	end
 end
@@ -388,6 +414,70 @@ local function DrawInvisCombo()
 	end
 end
 
+local function helperShards()
+	ImGui.Text("Table Flipper (Shard's Landing) ")
+	ImGui.SameLine()
+	if (ImGui.Button("Go To Zone SL")) then
+		if mq.TLO.Zone.ShortName() == 'shardslanding' then
+			print('You are already in the zone.')
+		else
+			mq.cmd('/travelto shardslanding')
+			navigatetoZone = true
+		end
+	end
+	ImGui.SameLine()
+	if (ImGui.Button("Go To Spot SL")) then
+		if mq.TLO.Zone.ShortName() == 'shardslanding' then
+			mq.cmd('/nav spawn object an eerily familiar plant')
+			navigatetoZone = true
+		else
+			mq.cmd('/travelto shardslanding')
+			print('You need to travel to the zone.')
+		end
+	end
+	ImGui.SameLine()
+	if (ImGui.Button("Start Helper SL")) then
+		print('Adjust your automation as you desire, request paused.')
+		mq.cmdf('/lua run %s/skull.lua', dir_name)
+	end
+	ImGui.SameLine()
+	if (ImGui.Button("Stop Helper SL")) then
+		mq.cmdf('/lua stop %s/skull.lua', dir_name)
+	end
+end
+
+local function helperUndershore()
+	ImGui.Text('Table Flipper (The Undershore) ')
+	ImGui.SameLine()
+	if (ImGui.Button("Go To Zone TU")) then
+		if mq.TLO.Zone.ShortName() == 'eastkorlach' then
+			print('You are already in the zone.')
+		else
+			mq.cmd('/travelto eastkorlach')
+			navigatetoZone = true
+		end
+	end
+	ImGui.SameLine()
+	if (ImGui.Button("Go To Spot TU")) then
+		if mq.TLO.Zone.ShortName() == 'eastkorlach' then
+			mq.cmd('/nav spawn npc Freemind Cipher')
+			navigatetoZone = true
+		else
+			mq.cmd('/travelto eastkorlach')
+			print('You need to travel to the zone.')
+		end
+	end
+	ImGui.SameLine()
+	if (ImGui.Button("Start Helper TU")) then
+		print('Adjust your automation as you desire, request paused.')
+		mq.cmdf('/lua run %s/mindspore.lua',dir_name)
+	end
+	ImGui.SameLine()
+	if (ImGui.Button("Stop Helper TU")) then
+		mq.cmdf('/lua stop %s/mindspore.lua',dir_name)
+	end
+end
+
 local function DrawOptions()
 	--Im blind as a bat using a 4K monitor with EQ in 4K, but all the pretty colors
 	CB_Size = ImGui.Checkbox('Text Size', CB_Size)
@@ -402,29 +492,29 @@ local function DrawOptions()
 	ImGui.Text('Invis Type: ')
 	ImGui.SameLine()
 	DrawInvisCombo()
+	ImGui.Separator()
+	ImGui.Text('Helpers:')
+	helperShards()
+	helperUndershore()
 end
 
 --DRAW THE GUI
 
-local function DrawButtons(z1,z2,z3)
+local function DrawButtons(item)
 	--draws and populates the nav buttons on each line if zone data is available
 	if (ImGui.Button("Z1")) then
-		GetNavCommand(z1)
+		GetNavCommand(item.zone1)
 	end
-	HoverButtonZone(z1)
-	if z2 ~= nil then
-		ImGui.SameLine()
-		if (ImGui.Button("Z2")) then
-			GetNavCommand(z2)
+	HoverButtonZone(item.zone1)
+
+	for i=2,maxZones,1 do
+		if item['zone'..i] ~= nil then
+			ImGui.SameLine()
+			if (ImGui.Button("Z"..i)) then
+				GetNavCommand(item['zone'..i])
+			end
+			HoverButtonZone(item['zone'..i])
 		end
-		HoverButtonZone(z2)
-	end
-	if z3 ~= nil then
-		ImGui.SameLine()
-		if (ImGui.Button("Z3")) then
-			GetNavCommand(z3)
-		end
-		HoverButtonZone(z3)
 	end
 end
 
@@ -438,8 +528,10 @@ local function BuildTopPanel()
 	if ImGui.IsItemHovered() then ImGui.SetTooltip('Will filter against the Races you have to complete.') end
 	if changed then filterKills(race_data) end
 	ImGui.SameLine()
-	CB_Needed = ImGui.Checkbox('Needed  ', CB_Needed)
+	CB_Needed,changed = ImGui.Checkbox('Needed  ', CB_Needed)
+	if changed then filterKills(race_data) end
 	if ImGui.IsItemHovered() then ImGui.SetTooltip('Will show only Races yet to be completed.') end
+
 end
 
 local function DrawRaceCellContents(data)
@@ -455,24 +547,24 @@ local function DrawRaceTable()
 	--Draw the race table tab
 	if ImGui.BeginTable('##List_table', column_count, bit32.bor(ImGuiTableFlags.Reorderable, ImGuiTableFlags.Hideable, ImGuiTableFlags.RowBg, ImGuiTableFlags.Borders, ImGuiTableFlags.Resizable, ImGuiTableFlags.ScrollY)) then
 		ImGui.TableSetupColumn('Race', 0, 150, ColumnID_Race)
-		ImGui.TableSetupColumn('Skill', 0, 100, ColumnID_Skill)
-		ImGui.TableSetupColumn('Special', 0, 100, ColumnID_Special)
-		ImGui.TableSetupColumn('Conquest', 0, 100, ColumnID_Conquest)
+		ImGui.TableSetupColumn('Skill', 0, 70, ColumnID_Skill)
+		ImGui.TableSetupColumn('Special', 0, 70, ColumnID_Special)
+		ImGui.TableSetupColumn('Conquest', 0, 70, ColumnID_Conquest)
 		ImGui.TableSetupColumn('Zones', 0, 150, ColumnID_Zones)
 		ImGui.TableSetupScrollFreeze(0, 1)
 		ImGui.TableHeadersRow()
 		local clipper = ImGuiListClipper.new()
 		--switch for filtered or total table display
-		local tmpTable = (CB_Needed or filter ~= '') and filteredKillList or race_data
-		clipper:Begin(#tmpTable)
+		--local tmpTable = (CB_Needed or filter ~= '') and filteredKillList or race_data
+		clipper:Begin(#filteredKillList)
 		while clipper:Step() do
 			for row_n = clipper.DisplayStart, clipper.DisplayEnd - 1, 1 do
-				local item = tmpTable[row_n + 1]
+				local item = filteredKillList[row_n + 1]
 				if item.Race == nil then goto continue end
 				ImGui.PushID(item)
 					ImGui.TableNextRow()
 					ImGui.TableNextColumn()
-					ImGui.Text(item.Race)
+					ImGui.TextWrapped(item.Race)
 					ImGui.TableNextColumn()
 					DrawRaceCellContents(item.Skill)
 					ImGui.TableNextColumn()
@@ -480,7 +572,7 @@ local function DrawRaceTable()
 					ImGui.TableNextColumn()
 					DrawRaceCellContents(item.Conquest)
 					ImGui.TableNextColumn()
-					DrawButtons(item.zone1,item.zone2,item.zone3)
+					DrawButtons(item)
 					ImGui.TableNextColumn()
 				ImGui.PopID()
 				::continue::
@@ -505,10 +597,15 @@ local function DrawMainGui()
 	ImGui.TextWrapped('It gives the minumum races needed to kill to achieve this, as well as, the zones that those races can appear in. It can let you travel to those zones with a click.')
 	ImGui.Spacing()
 	ImGui.TextWrapped('The Creatures Left and Races Left are how many are need to achieve. You may happen to kill more before you get the achievement as some of the races overlap the different achievements. Killing races that are not listed may decrease counts. You can hover over the count to get the true criteria.')
+	ImGui.Spacing()
+	ImGui.TextWrapped('There are helpers under the Options menu. Four buttons: one to get you to the zone, one to get you to the spot in the zone, one to start a lua to kill things, one to stop that lua. The helper will run once you start it until you stop it or you completed the achievement associated with it.')
+	ImGui.Spacing()
+	ImGui.TextWrapped('There is some delay built into the helpers so it looks like an OCD human is doing it. The helper will also /hidecorpse alwaysnpc and /hidecorpse none when it ends.')
+	
 end
 
 local function DrawPanels(data)
-	if data == 'Carnage Main' then
+	if data == 'About' then
 		DrawMainGui()
 	end
 	if data == 'Races To Kill' then
@@ -539,10 +636,10 @@ local function DisplayGUI()
 	if CB_Size then ImGui.SetWindowFontScale(1.5) else ImGui.SetWindowFontScale(1.0) end
 	if drawGUI and not mq.TLO.Me.Zoning() then
 		if ImGui.BeginTabBar('CarnageTabs', bit32.bor(ImGuiTabBarFlags.None)) then
-			DrawATab('Carnage Main')
 			DrawATab('Races To Kill')
 			DrawATab('Achievements')
 			DrawATab('Options')
+			DrawATab('About')
 			ImGui.EndTabBar()
 		end
 		ImGui.SameLine()

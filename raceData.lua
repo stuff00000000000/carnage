@@ -88,7 +88,7 @@ return
 		Conquest	= 11000007,
 		zone1		= 'theater',
 		zone2		= 'crescent',
-		zone3		= nil
+		zone3		= 'ponightmare'
 	},
 	[11]				= {
 		Race		= 'Bear',
@@ -127,13 +127,14 @@ return
 		zone3		= nil
 	},
 	[15]				= {
-		Race		= 'Book Dervish',
+		Race		= 'Book Dervish (Optional)',
 		Skill		= 11000175,
 		Special		= 11000162,
 		Conquest	= 11000021,
 		zone1		= 'fallen',
 		zone2		= nil,
-		zone3		= nil
+		zone3		= nil,
+		Optional	= true
 	},
 	[16]				= {
 		Race		= 'Broom Minion (Optional)',
@@ -142,7 +143,8 @@ return
 		Conquest	= 'Not Used',
 		zone1		= 'arxmentis',
 		zone2		= nil,
-		zone3		= nil
+		zone3		= nil,
+		Optional	= true
 	},
 	[17]				= {
 		Race		= 'Brownie',
@@ -281,8 +283,8 @@ return
 	},
 	[32]				= {
 		Race		= 'Dragon',
-		Skill		= 11000052,
-		Special		= 11000053,
+		Skill		= 'Not Used',
+		Special		= 11000052,
 		Conquest	= 11000018,
 		zone1		= 'westwastes',
 		zone2		= 'templeveeshan',
@@ -394,7 +396,8 @@ return
 		Conquest	= 'Not Used',
 		zone1		= 'arginhiz',
 		zone2		= nil,
-		zone3		= nil
+		zone3		= nil,
+		Optional	= true
 	},
 	[45]				= {
 		Race		= 'Fish',
@@ -456,7 +459,7 @@ return
 		Special		= 11000050,
 		Conquest	= 11000017,
 		zone1		= 'povalor',
-		zone2		= nil,
+		zone2		= 'wakening',
 		zone3		= nil
 	},
 	[52]				= {
@@ -673,7 +676,7 @@ return
 		Conquest	= 11000022,
 		zone1		= 'dulak',
 		zone2		= 'gunthak',
-		zone3		= nil
+		zone3		= 'nadox'
 	},
 	[76]				= {
 		Race		= 'Mammoth',
@@ -699,8 +702,8 @@ return
 		Special		= 'Not Used',
 		Conquest	= 11000020,
 		zone1		= 'LDONeverfrost',
-		zone2		= nil,
-		zone3		= nil
+		zone2		= 'eastwastes',
+		zone3		= 'eastwastesshard'
 	},
 	[79]				= {
 		Race		= 'Marionette',
@@ -708,8 +711,8 @@ return
 		Special		= 11000049,
 		Conquest	= 11000016,
 		zone1		= 'morellcastle',
-		zone2		= nil,
-		zone3		= nil
+		zone2		= 'brellstemple',
+		zone3		= 'convorteum'
 	},
 	[80]				= {
 		Race		= 'Mephit',
@@ -1023,7 +1026,7 @@ return
 		Special		= 'Not Used',
 		Conquest	= 11000022,
 		zone1		= 'crystal',
-		zone2		= nil,
+		zone2		= 'shadowvalley',
 		zone3		= nil
 	},
 	[115]				= {
@@ -1041,8 +1044,8 @@ return
 		Special		= 11000032,
 		Conquest	= 11000004,
 		zone1		= 'gunthak',
-		zone2		= nil,
-		zone3		= nil
+		zone2		= 'nadox',
+		zone3		= 'dulak'
 	},
 	[117]				= {
 		Race		= 'Turepta',
@@ -1060,7 +1063,8 @@ return
 		Conquest	= 11000018,
 		zone1		= 'thuliasaur',
 		zone2		= nil,
-		zone3		= nil
+		zone3		= nil,
+		Optional	= true
 	},
 	[119]				= {
 		Race		= 'Ursarachnid (Optional)',
@@ -1069,7 +1073,8 @@ return
 		Conquest	= 11000005,
 		zone1		= 'ethernere',
 		zone2		= nil,
-		zone3		= nil
+		zone3		= nil,
+		Optional	= true
 	},
 	[120]				= {
 		Race		= 'Vah Shir',
@@ -1099,7 +1104,7 @@ return
 		zone3		= nil
 	},
 	[123]				= {
-		Race		= 'Vase',
+		Race		= 'Vase (budding mindspore, eerily familiar plant)',
 		Skill		= 'Not Used',
 		Special		= 'Not Used',
 		Conquest	= 11000027,
@@ -1186,7 +1191,8 @@ return
 		Conquest	= 11000022,
 		zone1		= 'deadhills',
 		zone2		= nil,
-		zone3		= nil
+		zone3		= nil,
+		Optional	= true
 	},
 	[133]				= {
 		Race		= 'Zombie',

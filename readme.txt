@@ -15,6 +15,15 @@ Carnage: Gotta Kill Them All
 
 Run: /lua run carnage
 
+Version 1.6.0
+--Added helpers for table flipper as currently automation does not target objects (at least that I am aware of).
+--Added some more zones to races.
+--Refactored zone buttons to allow the ability to add unlimited zones.
+--Possible fix to a nil error on ingame load.
+--Added hover description to achievement view.
+--Rearranged tabs.
+--Redid the filtering. Selecting needed will filter out Optional mobs.
+
 Version 1.5.2
 --Added (Optional) tag to races that are optional to the achievement.
 
