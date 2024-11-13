@@ -15,6 +15,9 @@ Carnage: Gotta Kill Them All
 
 Run: /lua run carnage
 
+Version 1.6.1
+--removed testing code
+
 Version 1.6.0
 --Added helpers for table flipper as currently automation does not target objects (at least that I am aware of).
 --Added some more zones to races.

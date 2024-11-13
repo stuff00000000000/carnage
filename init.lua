@@ -3,7 +3,7 @@ local mq										= require('mq')
 local ImGui										= require 'ImGui'
 local race_data									= require('raceData')
 local class_settings 							= require("classSettings")
-local dir_name									= 'carnage_beta'
+local dir_name									= 'carnage'
 --flags
 local running, changed 							= true, false
 local openGUI, drawGUI							= true, true
@@ -27,7 +27,7 @@ local maxZones									= 9
 --changed one race to nil, instead of renumbering race list
 
 --Text stuff
-local filter, Version							= '', '1.6.0'
+local filter, Version							= '', '1.6.1'
 
 --ArraYs
 local filteredKillList, invis_type				= {}, {}
