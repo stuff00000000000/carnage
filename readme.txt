@@ -15,6 +15,9 @@ Carnage: Gotta Kill Them All
 
 Run: /lua run carnage
 
+Version 1.7.1
+--added filter popup for races. Clicking needed on the filter will uncheck on the completed ones.
+
 Version 1.6.1
 --removed testing code
 

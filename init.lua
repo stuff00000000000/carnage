@@ -2,12 +2,14 @@
 local mq										= require('mq')
 local ImGui										= require 'ImGui'
 local race_data									= require('raceData')
+local ICONS                                     = require('mq.Icons')
 local class_settings 							= require("classSettings")
 local dir_name									= 'carnage'
 --flags
 local running, changed 							= true, false
 local openGUI, drawGUI							= true, true
 local CB_Needed, CB_Size, CB_Invis = false, false, true
+local CB_Race,CB_RaceS									= {},{}
 local navigatetoZone, PotionNeed 				= false, false
 
 --GUI stuff
@@ -22,12 +24,11 @@ local ColumnID_Race, ColumnID_Skill, ColumnID_Special, ColumnID_Conquest, Column
 
 --counters
 local currentKill	= 0
-local RaceCount, RacesKilled, currentRaces		= -1, 0, 0
+local RaceCount, RacesKilled, currentRaces		= 0, 0, 0
 local maxZones									= 9
---changed one race to nil, instead of renumbering race list
 
 --Text stuff
-local filter, Version							= '', '1.6.1'
+local filter, Version							= '', '1.7.1'
 
 --ArraYs
 local filteredKillList, invis_type				= {}, {}
@@ -37,6 +38,12 @@ local LastKill									= os.clock()
 local plugins 									= {"MQ2Nav", "MQ2EasyFind", "MQ2Relocate"}
 local SlayerKeys								= {Skill=1, Conquest=1, Special=1}
 local tabclick									= nil
+
+local function envIsAlphaNum(sIn)
+	return (string.match(sIn,"[^%w]") == nil) end
+
+local function envIsNum(sIn)
+	return tonumber(sIn) ~= nil end
 
 --Invis Functions
 
@@ -186,6 +193,23 @@ local function testkill(data)
 	end
 end
 
+
+local function racefilterbutton()
+    for _,race in ipairs(race_data) do
+		local sk_count = GetKillCounts(race.Skill)
+		local sp_count = GetKillCounts(race.Special)
+		local co_count = GetKillCounts(race.Conquest)
+		if (0 < sk_count or 0 < sp_count or 0 < co_count) then
+			CB_Race[race.Race] = true
+		else
+			local testNil = race.Race
+			if testNil then
+				CB_Race[race.Race] = false
+			end
+		end
+	end
+end
+
 local function filterKills(data)
 	--builds a table of races that still need kills, or requested from filter
     filteredKillList = {}
@@ -195,22 +219,24 @@ local function filterKills(data)
 		if not testkill(race) then
 			RacesKilled = RacesKilled + 1
 		end
-		if CB_Needed and filter ~= '' then
-			local mob_optional = race.Optional
-			if not mob_optional and testkill(race) and string.find(race.Race:lower(), filter) then
+		if CB_Race[race.Race] then
+			if CB_Needed and filter ~= '' then
+				local mob_optional = race.Optional
+				if not mob_optional and testkill(race) and string.find(race.Race:lower(), filter) then
+					table.insert(filteredKillList, race)
+				end
+			elseif CB_Needed then
+				local mob_optional = race.Optional
+				if not mob_optional and testkill(race) then
+					table.insert(filteredKillList, race)
+				end
+			elseif filter ~= '' then
+				if testkill(race) and string.find(race.Race:lower(), filter) then
+					table.insert(filteredKillList, race)
+				end
+			else
 				table.insert(filteredKillList, race)
 			end
-		elseif CB_Needed then
-			local mob_optional = race.Optional
-			if not mob_optional and testkill(race) then
-				table.insert(filteredKillList, race)
-			end
-		elseif filter ~= '' then
-			if testkill(race) and string.find(race.Race:lower(), filter) then
-				table.insert(filteredKillList, race)
-			end
-		else
-			table.insert(filteredKillList, race)
 		end
     end
 end
@@ -518,13 +544,52 @@ local function DrawButtons(item)
 	end
 end
 
+local function racefilterpopup()
+
+	ImGui.SetNextWindowSize(ImVec2(1000,0))
+	if ImGui.BeginPopupContextItem('Race_Filters') then
+        ImGui.Text('Races: ')
+		ImGui.SameLine()
+		if ImGui.Button('Needed?') then
+			racefilterbutton()
+			filterKills(race_data)
+		end
+		ImGui.Separator()
+		local counting = 0
+		local changed
+		ImGui.Columns(5, '#checkboxes')
+		ImGui.SetColumnWidth(1,200)
+		ImGui.SetColumnWidth(2,200)
+		ImGui.SetColumnWidth(3,200)
+		ImGui.SetColumnWidth(4,200)
+		ImGui.SetColumnWidth(5,200)
+			for _,k in ipairs(CB_Race) do
+				counting = counting + 1
+				if counting <= 26 then
+						local textchange = string.sub(k,1,19)
+						CB_Race[k], changed = ImGui.Checkbox(textchange, CB_Race[k])
+						if changed then filterKills(race_data) end
+				else
+					ImGui.NextColumn()
+					counting = 0
+				end
+			end
+		ImGui.EndPopup()
+	end
+end
+
 local function BuildTopPanel()
 	--Build top header of gui
+	ImGui.SmallButton(ICONS.MD_SETTINGS)
+	ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 10, 10)
+	racefilterpopup()
+	ImGui.PopStyleVar()
+    ImGui.SameLine()
 	ImGui.Text('Race:')
 	ImGui.SameLine()
 	ImGui.SetNextItemWidth(100)
 	local changed
-	filter,changed = ImGui.InputText('##Filter', filter)
+	filter, changed = ImGui.InputText('##Filter', filter)
 	if ImGui.IsItemHovered() then ImGui.SetTooltip('Will filter against the Races you have to complete.') end
 	if changed then filterKills(race_data) end
 	ImGui.SameLine()
@@ -554,8 +619,6 @@ local function DrawRaceTable()
 		ImGui.TableSetupScrollFreeze(0, 1)
 		ImGui.TableHeadersRow()
 		local clipper = ImGuiListClipper.new()
-		--switch for filtered or total table display
-		--local tmpTable = (CB_Needed or filter ~= '') and filteredKillList or race_data
 		clipper:Begin(#filteredKillList)
 		while clipper:Step() do
 			for row_n = clipper.DisplayStart, clipper.DisplayEnd - 1, 1 do
@@ -668,18 +731,25 @@ end
 
 --START STUFF
 
+
 local function load_data(data)
 	--loads data from the racedata file. does initial checks for achievement completed and changes those from the keyvalue to 'Completed'
 	--calculates total kills needed for MegaDeath
 	--calculates total races at a minimum needed to be killed for MegaDeath (not races left to kill)
 	print('\arLoading race data from file.\ax')
-	for k,v in pairs(data) do
+	for k,v in ipairs(data) do
 		RaceCount = RaceCount + 1
 		for key, value in pairs(v) do
 			if SlayerKeys[key] then
-				if mq.TLO.Achievement(value).Completed() then race_data[k][key] = 'Completed' end
+				if mq.TLO.Achievement(value).Completed() then
+					race_data[k][key] = 'Completed'
+				end
 			end
 		end
+	end
+	for k in ipairs(race_data) do
+		table.insert(CB_Race,race_data[k].Race)
+		CB_Race[race_data[k].Race] = true
 	end
 	printf('\arRaces marked for death: \ay%s\ax', RaceCount)
 	printf('\arCreatures left to Kill: \ay%s\ax', GetGlobalKills())
@@ -692,7 +762,6 @@ local function initializeDeath()
 	--Define trigger events to update filterdata
 	mq.event('SomeoneKills','#*#has been slain by#*#',DeathCheckUpdate)
 	mq.event('YouKill','#*#You have slain#*#',DeathCheckUpdate)
-
 	--check for plugins that are used in this script
 	for _, plugin in ipairs(plugins) do
 		if mq.TLO.Plugin(plugin)() == nil then
