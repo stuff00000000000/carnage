@@ -859,6 +859,15 @@ return
 		zone3		= nil
 	},
 	[96]				= {
+		Race		= 'Scalewrought (Optional)',
+		Skill		= 11000179,
+		Special		= 'Not Used',
+		Conquest	= 'Not Used',
+		zone1		= 'hodstock',
+		zone2		= nil,
+		zone3		= nil
+	},
+	[97]				= {
 		Race		= 'Scarecrow',
 		Skill		= 11000143,
 		Special		= 'Not Used',
@@ -867,7 +876,7 @@ return
 		zone2		= 'ethernere',
 		zone3		= nil
 	},
-	[97]				= {
+	[98]				= {
 		Race		= 'Selyrah',
 		Skill		= 'Not Used',
 		Special		= 11000063,
@@ -876,7 +885,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[98]				= {
+	[99]				= {
 		Race		= 'Shade',
 		Skill		= 11000111,
 		Special		= 'Not Used',
@@ -885,7 +894,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[99]				= {
+	[100]				= {
 		Race		= 'Shambling Mound',
 		Skill		= 'Not Used',
 		Special		= 11000051,
@@ -894,7 +903,7 @@ return
 		zone2		= 'theater',
 		zone3		= 'mesa'
 	},
-	[100]				= {
+	[101]				= {
 		Race		= 'Shiliskin',
 		Skill		= 11000138,
 		Special		= 'Not Used',
@@ -903,7 +912,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[101]				= {
+	[102]				= {
 		Race		= 'Shissar',
 		Skill		= 11000102,
 		Special		= 'Not Used',
@@ -912,7 +921,7 @@ return
 		zone2		= 'kattacastrum',
 		zone3		= nil
 	},
-	[102]				= {
+	[103]				= {
 		Race		= 'Siren',
 		Skill		= 11000141,
 		Special		= 'Not Used',
@@ -921,7 +930,7 @@ return
 		zone2		= 'tempesttemple',
 		zone3		= nil
 	},
-	[103]				= {
+	[104]				= {
 		Race		= 'Skeleton',
 		Skill		= 11000104,
 		Special		= 'Not Used',
@@ -930,7 +939,7 @@ return
 		zone2		= 'crescent',
 		zone3		= 'mesa'
 	},
-	[104]				= {
+	[105]				= {
 		Race		= 'Skunk',
 		Skill		= 11000090,
 		Special		= 11000037,
@@ -939,7 +948,7 @@ return
 		zone2		= 'unkemptwoods',
 		zone3		= nil
 	},
-	[105]				= {
+	[106]				= {
 		Race		= 'Snake',
 		Skill		= 11000103,
 		Special		= 'Not Used',
@@ -948,7 +957,7 @@ return
 		zone2		= 'crescent',
 		zone3		= 'thulehouse2'
 	},
-	[106]				= {
+	[107]				= {
 		Race		= 'Sokokar',
 		Skill		= 11000122,
 		Special		= 'Not Used',
@@ -957,7 +966,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[107]				= {
+	[108]				= {
 		Race		= 'Sphinx',
 		Skill		= 11000158,
 		Special		= 'Not Used',
@@ -966,7 +975,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[108]				= {
+	[109]				= {
 		Race		= 'Spider',
 		Skill		= 11000100,
 		Special		= 11000038,
@@ -975,7 +984,7 @@ return
 		zone2		= 'mesa',
 		zone3		= 'poair'
 	},
-	[109]				= {
+	[110]				= {
 		Race		= 'Sporali',
 		Skill		= 11000145,
 		Special		= 'Not Used',
@@ -984,7 +993,7 @@ return
 		zone2		= 'crescent',
 		zone3		= nil
 	},
-	[110]				= {
+	[111]				= {
 		Race		= 'Stonegrabber',
 		Skill		= 'Not Used',
 		Special		= 11000050,
@@ -993,7 +1002,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[111]				= {
+	[112]				= {
 		Race		= 'Stonemite',
 		Skill		= 'Not Used',
 		Special		= 11000061,
@@ -1002,7 +1011,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[112]				= {
+	[113]				= {
 		Race		= 'Stormrider',
 		Skill		= 'Not Used',
 		Special		= 11000057,
@@ -1011,7 +1020,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[113]				= {
+	[114]				= {
 		Race		= 'Tentacle Terror',
 		Skill		= 11000164,
 		Special		= 'Not Used',
@@ -1020,7 +1029,7 @@ return
 		zone2		= 'shadowvalley',
 		zone3		= nil
 	},
-	[114]				= {
+	[115]				= {
 		Race		= 'Treant',
 		Skill		= 11000144,
 		Special		= 'Not Used',
@@ -1029,7 +1038,7 @@ return
 		zone2		= 'theater',
 		zone3		= 'mesa'
 	},
-	[115]				= {
+	[116]				= {
 		Race		= 'Troll',
 		Skill		= 11000078,
 		Special		= 11000032,
@@ -1038,7 +1047,7 @@ return
 		zone2		= 'nadox',
 		zone3		= 'dulak'
 	},
-	[116]				= {
+	[117]				= {
 		Race		= 'Turepta',
 		Skill		= 11000121,
 		Special		= 11000061,
@@ -1047,7 +1056,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[117]				= {
+	[118]				= {
 		Race		= 'Tyrannosaurus (Optional)',
 		Skill		= 11000177,
 		Special		= 11000053,
@@ -1057,7 +1066,7 @@ return
 		zone3		= nil,
 		Optional	= true
 	},
-	[118]				= {
+	[119]				= {
 		Race		= 'Ursarachnid (Optional)',
 		Skill		= 11000174,
 		Special		= 11000038,
@@ -1067,7 +1076,7 @@ return
 		zone3		= nil,
 		Optional	= true
 	},
-	[119]				= {
+	[120]				= {
 		Race		= 'Vah Shir',
 		Skill		= 11000085,
 		Special		= 11000035,
@@ -1076,7 +1085,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[120]				= {
+	[121]				= {
 		Race		= 'Vallon Zek',
 		Skill		= 'Not Used',
 		Special		= 'Not Used',
@@ -1085,7 +1094,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[121]				= {
+	[122]				= {
 		Race		= 'Vampire',
 		Skill		= 11000105,
 		Special		= 'Not Used',
@@ -1094,7 +1103,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[122]				= {
+	[123]				= {
 		Race		= 'Vase (budding mindspore, eerily familiar plant)',
 		Skill		= 'Not Used',
 		Special		= 'Not Used',
@@ -1103,7 +1112,7 @@ return
 		zone2		= 'mischiefplane',
 		zone3		= nil
 	},
-	[123]				= {
+	[124]				= {
 		Race		= 'Veksar',
 		Skill		= 11000081,
 		Special		= 11000034,
@@ -1112,7 +1121,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[124]				= {
+	[125]				= {
 		Race		= 'Walrus',
 		Skill		= 11000123,
 		Special		= 11000059,
@@ -1121,7 +1130,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[125]				= {
+	[126]				= {
 		Race		= 'Wasp',
 		Skill		= 11000099,
 		Special		= 'Not Used',
@@ -1130,7 +1139,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[126]				= {
+	[127]				= {
 		Race		= 'Will O Wisp',
 		Skill		= 11000110,
 		Special		= 'Not Used',
@@ -1139,7 +1148,7 @@ return
 		zone2		= 'mesa',
 		zone3		= nil
 	},
-	[127]				= {
+	[128]				= {
 		Race		= 'Witheran',
 		Skill		= 11000146,
 		Special		= 11000053,
@@ -1148,7 +1157,7 @@ return
 		zone2		= nil,
 		zone3		= nil
 	},
-	[128]				= {
+	[129]				= {
 		Race		= 'Wolf',
 		Skill		= 11000113,
 		Special		= 11000039,
@@ -1157,7 +1166,7 @@ return
 		zone2		= 'mesa',
 		zone3		= 'icefall'
 	},
-	[129]				= {
+	[130]				= {
 		Race		= 'Wood Elf',
 		Skill		= 11000069,
 		Special		= 11000030,
@@ -1166,7 +1175,7 @@ return
 		zone2		= 'oot',
 		zone3		= nil
 	},
-	[130]				= {
+	[131]				= {
 		Race		= 'Wyvern',
 		Skill		= 11000147,
 		Special		= 11000053,
@@ -1175,7 +1184,7 @@ return
 		zone2		= 'shardslanding',
 		zone3		= nil
 	},
-	[131]				= {
+	[132]				= {
 		Race		= 'Xulous (Optional)',
 		Skill		= 11000173,
 		Special		= 'Not Used',
@@ -1185,7 +1194,7 @@ return
 		zone3		= nil,
 		Optional	= true
 	},
-	[132]				= {
+	[133]				= {
 		Race		= 'Zombie',
 		Skill		= 11000106,
 		Special		= 'Not Used',

@@ -28,7 +28,7 @@ local RaceCount, RacesKilled, currentRaces		= 0, 0, 0
 local maxZones									= 9
 
 --Text stuff
-local filter, Version							= '', '1.7.1'
+local filter, Version							= '', '1.7.2'
 
 --ArraYs
 local filteredKillList, invis_type				= {}, {}
@@ -397,7 +397,7 @@ local function buildAchView()
 		childcount = childcount + 1
 	end
 	childcount = childcount + 1
-	for i=11000065, 11000178 do
+	for i=11000065, 11000179 do
 		table.insert(treeview_nodes, MyTreeNode.new(i, IsCompleteOrMetaCount(i), childcount, -1))
 		childcount = childcount + 1
 	end
